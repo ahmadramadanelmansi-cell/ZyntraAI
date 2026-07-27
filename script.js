@@ -1,28 +1,42 @@
 const btn = document.getElementById("sendBtn");
 
-btn.onclick = function(){
+btn.onclick = async function () {
+  const input = document.getElementById("prompt");
+  const response = document.getElementById("response");
 
-let input = document.getElementById("prompt");
+  if (input.value.trim() === "") return;
 
-let response = document.getElementById("response");
+  const message = input.value;
 
-if(input.value.trim()==""){
-return;
-}
+  response.innerHTML += `
+    <div class="user">${message}</div>
+  `;
 
-response.innerHTML += `
-<div class="user">
-${input.value}
-</div>
+  input.value = "";
 
-<div class="bot">
-🤖 I'm still under development...
-Soon I'll answer with real AI.
-</div>
-`;
+  const loading = document.createElement("div");
+  loading.className = "bot";
+  loading.innerHTML = "🤖 Thinking...";
+  response.appendChild(loading);
 
-input.value="";
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: message
+      })
+    });
 
-response.scrollTop=response.scrollHeight;
+    const data = await res.json();
 
-}
+    loading.innerHTML = "🤖 " + (data.reply || "No response");
+
+  } catch (err) {
+    loading.innerHTML = "❌ Error: " + err.message;
+  }
+
+  response.scrollTop = response.scrollHeight;
+};
