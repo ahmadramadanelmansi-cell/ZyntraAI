@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     const { message } = req.body;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.OPENAI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.OPENAI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     return res.status(200).json({
-      reply: JSON.stringify(data, null, 2)
+      reply: data.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data)
     });
 
   } catch (error) {
